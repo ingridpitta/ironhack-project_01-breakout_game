@@ -173,7 +173,7 @@ class Brick {
   }
 
   update() {
-    //Detect sollision with Brick
+    //Detect collision with Brick
     if (detectCollision(this.game.ball, this)) {
       this.game.ball.speed.y = -this.game.ball.speed.y;
       this.markedForDeletion = true;
