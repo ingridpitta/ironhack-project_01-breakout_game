@@ -9,7 +9,8 @@ const gameState = {
   running: 1,
   menu: 2,
   gameOver: 3,
-  newLevel: 4
+  newLevel: 4,
+  win: 5
 };
 
 function detectCollision(ball, gameObject) {
@@ -219,12 +220,13 @@ const level2 = [
 ];
 
 const level3 = [
-  [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
+
 
 class Game {
   constructor(gameWidth, gameHeight) {
@@ -268,11 +270,16 @@ class Game {
     )
       return;
 
-    if (this.bricks.length === 0) {
-      this.currentLevel++;
+    if (this.bricks.length === 0 && this.currentLevel < this.levels.length) {
+      if (this.currentLevel === this.levels.length - 1) {
+        this.gameState = gameState.win;
+      } else {
+        this.currentLevel++;
       this.gameState = gameState.newLevel;
       this.start();
+      }
     }
+
 
     [...this.gameObjects, ...this.bricks].forEach(object =>
       object.update(deltaTime)
@@ -319,7 +326,17 @@ class Game {
       ctx.textAlign = "center";
       ctx.fillText("GAME OVER", this.gameWidth / 2, this.gameHeight / 2);
     }
-  };
+    if (this.gameState === gameState.win) {
+      ctx.rect(0, 0, this.gameWidth, this.gameHeight);
+      ctx.fillStyle = "rgba(0,0,0,1)";
+      ctx.fill();
+
+      ctx.font = "30px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText("YOU WIN!!!", this.gameWidth / 2, this.gameHeight / 2);
+    }
+  }
 
   togglePause() {
     if (this.gameState === gameState.paused) {
