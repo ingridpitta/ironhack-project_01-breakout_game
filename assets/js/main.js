@@ -1,11 +1,8 @@
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight - 100;
-
-const game_Width = canvas.width;
-const game_Height = canvas.height;
+canvas.width = window.innerWidth / 1.1;
+canvas.height = window.innerHeight / 1.1;
 
 const gameState = {
   paused: 0,
@@ -16,19 +13,19 @@ const gameState = {
 };
 
 function detectCollision(ball, gameObject) {
-  let bottomOfBall = ball.position.y + ball.size;
-  let topOfBall = ball.position.y;
+  let bottomBall = ball.position.y + ball.size;
+  let topBall = ball.position.y;
 
-  let topOfObject = gameObject.position.y;
-  let leftSideOfObject = gameObject.position.x;
-  let rightSideOfObject = gameObject.position.x + gameObject.width;
-  let bottomOfObject = gameObject.position.y + gameObject.height;
+  let topObject = gameObject.position.y;
+  let leftSideObject = gameObject.position.x;
+  let rightSideObject = gameObject.position.x + gameObject.width;
+  let bottomObject = gameObject.position.y + gameObject.height;
 
   if (
-    bottomOfBall >= topOfObject &&
-    topOfBall <= bottomOfObject &&
-    ball.position.x >= leftSideOfObject &&
-    ball.position.x + ball.size <= rightSideOfObject
+    bottomBall >= topObject &&
+    topBall <= bottomObject &&
+    ball.position.x >= leftSideObject &&
+    ball.position.x + ball.size <= rightSideObject
   ) {
     return true;
   } else {
@@ -58,23 +55,28 @@ class Ball {
     ctx.closePath();
   }
 
-  update(deltaTime) {
+  update() {
+    //Updade position based on speed 
     this.position.x += this.speed.x;
     this.position.y += this.speed.y;
 
+    //Revert speed to prevent ball to go outside the game area on X axis
     if (this.position.x + this.size > this.gameWidth || this.position.x < 0) {
       this.speed.x = -this.speed.x;
     }
 
+    //Revert speed to prevent ball to go outside the game area on Y axis (top)
     if (this.position.y < 0) {
       this.speed.y = -this.speed.y;
     }
 
+    //Lose life (ball is outside the game area on Y axis (bottom))
     if (this.position.y + this.size > this.gameHeight) {
       this.game.lives--;
       this.reset();
     }
 
+    //Detect collision with paddle
     if (detectCollision(this, this.game.paddle)) {
       this.speed.y = -this.speed.y;
       this.position.y = this.game.paddle.position.y - this.size;
@@ -128,18 +130,19 @@ class InputHandler {
   constructor(paddle, game) {
     document.addEventListener("keydown", event => {
       switch (event.keyCode) {
+        //ArrowLeft
         case 37:
           paddle.moveLeft();
           break;
-
+        //ArrowRight
         case 39:
           paddle.moveRight();
           break;
-
+        //Esc
         case 27:
           game.togglePause();
           break;
-
+        //Spacebar
         case 32:
           game.start();
           break;
@@ -164,22 +167,22 @@ class Brick {
   constructor(game, position) {
     this.game = game;
     this.position = position;
-    this.width = 80;
-    this.height = 24;
+    this.width = 100;
+    this.height = 15;
     this.markedForDeletion = false;
   }
 
   update() {
+    //Detect sollision with Brick
     if (detectCollision(this.game.ball, this)) {
       this.game.ball.speed.y = -this.game.ball.speed.y;
-
       this.markedForDeletion = true;
     }
   }
 
   draw(ctx) {
     ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    ctx.fillRect(this.position.x, this.position.y, this.width , this.height);
   }
 }
 
@@ -190,8 +193,8 @@ function buildLevel(game, level) {
     row.forEach((brick, brickIndex) => {
       if (brick === 1) {
         let position = {
-          x: 80 * brickIndex,
-          y: 75 + 24 * rowIndex
+          x: (canvas.width / 30) + 110 * brickIndex,
+          y: 80 +  25 * rowIndex
         };
         bricks.push(new Brick(game, position));
       }
@@ -234,7 +237,7 @@ class Game {
     this.bricks = [];
     this.lives = 5;
 
-    this.levels = [level1, level2];
+    this.levels = [level1, level2, level3];
     this.currentLevel = 0;
 
     new InputHandler(this.paddle, this);
@@ -327,19 +330,19 @@ class Game {
   }
 }
 
-let game = new Game(game_Width, game_Height);
+let game = new Game(canvas.width, canvas.height);
 let lastTime = 0;
 
-function gameLoop(timestamp) {
+function gameUpdate(timestamp) {
   let deltaTime = timestamp - lastTime;
   lastTime = timestamp;
 
-  ctx.clearRect(0, 0, game_Width, game_Height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   game.update(deltaTime);
   game.draw(ctx);
 
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameUpdate);
 }
 
-requestAnimationFrame(gameLoop);
+requestAnimationFrame(gameUpdate);
