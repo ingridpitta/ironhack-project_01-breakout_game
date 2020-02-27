@@ -45,7 +45,15 @@ class Ball {
 
   reset() {
     this.position = { x: 10, y: 400 };
-    this.speed = { x: 4, y: -2 };
+    if(this.game.currentLevel === 0){
+      this.speed = { x: 4, y: -2 };
+    }
+    if(this.game.currentLevel === 1){
+      this.speed = { x: 6, y: -3 };
+    }
+    if(this.game.currentLevel === 2){
+      this.speed = { x: 8, y: -4};
+    }
   }
 
   draw(ctx) {
@@ -290,8 +298,17 @@ class Game {
     ctx.font = "30px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
-    ctx.fillText(this.score, canvas.width / 2, canvas.height / 2);
+    ctx.fillText(`SCORE: ${this.score}`, canvas.width / 28, canvas.height / 12);
 
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "left";
+    ctx.fillText(`LIVES: ${this.lives}`, canvas.width / 1.15, canvas.height / 12);
+
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "left";
+    ctx.fillText(`LEVEL: ${this.currentLevel + 1}`, canvas.width / 2.2, canvas.height / 12);
 
     if (this.gameState === gameState.paused) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
@@ -326,17 +343,16 @@ class Game {
       ctx.font = "30px Arial";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText("GAME OVER", this.gameWidth / 2, this.gameHeight / 2);
+      ctx.fillText(`GAME OVER! SCORE: ${this.score}`,this.gameWidth / 2, this.gameHeight / 2);
     }
     if (this.gameState === gameState.win) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fill();
-
       ctx.font = "30px Arial";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText("YOU WIN!!!", this.gameWidth / 2, this.gameHeight / 2);
+      ctx.fillText(`YOU WIN!!! SCORE: ${this.score}`,this.gameWidth / 2, this.gameHeight / 2);
     }
   }
 
