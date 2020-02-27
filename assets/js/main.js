@@ -10,7 +10,7 @@ const gameState = {
   menu: 2,
   gameOver: 3,
   newLevel: 4,
-  win: 5
+  won: 5
 };
 
 function detectCollision(ball, gameObject) {
@@ -45,14 +45,16 @@ class Ball {
 
   reset() {
     this.position = { x: 10, y: 400 };
-    if(this.game.currentLevel === 0){
+
+    //Increase speed with levels
+    if (this.game.currentLevel === 0) {
       this.speed = { x: 4, y: -2 };
     }
-    if(this.game.currentLevel === 1){
+    if (this.game.currentLevel === 1) {
       this.speed = { x: 6, y: -3 };
     }
-    if(this.game.currentLevel === 2){
-      this.speed = { x: 8, y: -4};
+    if (this.game.currentLevel === 2) {
+      this.speed = { x: 8, y: -4 };
     }
   }
 
@@ -65,7 +67,7 @@ class Ball {
   }
 
   update() {
-    //Updade position based on speed 
+    //Updade position based on speed
     this.position.x += this.speed.x;
     this.position.y += this.speed.y;
 
@@ -125,7 +127,7 @@ class Paddle {
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 
-  update(deltaTime) {
+  update() {
     this.position.x += this.speed;
 
     if (this.position.x < 0) this.position.x = 0;
@@ -149,6 +151,7 @@ class InputHandler {
           break;
         //Esc
         case 27:
+          //Pause and unpause the game
           game.togglePause();
           break;
         //Spacebar
@@ -158,6 +161,7 @@ class InputHandler {
       }
     });
 
+    //Stop paddle movement on keyup
     document.addEventListener("keyup", event => {
       switch (event.keyCode) {
         case 37:
@@ -186,16 +190,18 @@ class Brick {
     if (detectCollision(this.game.ball, this)) {
       this.game.ball.speed.y = -this.game.ball.speed.y;
       this.markedForDeletion = true;
-      this.game.score += 10
+      this.game.score += 10;
     }
   }
 
   draw(ctx) {
     ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width , this.height);
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
 
+
+//Populate screen with bricks according to current level
 function buildLevel(game, level) {
   let bricks = [];
 
@@ -203,8 +209,8 @@ function buildLevel(game, level) {
     row.forEach((brick, brickIndex) => {
       if (brick === 1) {
         let position = {
-          x: (canvas.width / 30) + 110 * brickIndex,
-          y: 80 +  25 * rowIndex
+          x: canvas.width / 30 + 110 * brickIndex,
+          y: 80 + 25 * rowIndex
         };
         bricks.push(new Brick(game, position));
       }
@@ -214,6 +220,7 @@ function buildLevel(game, level) {
   return bricks;
 }
 
+//Levels 
 const level1 = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
@@ -229,9 +236,8 @@ const level3 = [
   [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
-
 
 class Game {
   constructor(gameWidth, gameHeight) {
@@ -244,10 +250,10 @@ class Game {
     this.bricks = [];
     this.lives = 5;
     this.score = 0;
-
     this.levels = [level1, level2, level3];
     this.currentLevel = 0;
 
+    //key event listener
     new InputHandler(this.paddle, this);
   }
 
@@ -265,7 +271,7 @@ class Game {
     this.gameState = gameState.running;
   }
 
-  update(deltaTime) {
+  update() {
     if (this.lives === 0) this.gameState = gameState.gameOver;
 
     if (
@@ -274,10 +280,11 @@ class Game {
       this.gameState === gameState.gameOver
     )
       return;
-
+    
+    // Check if won else increase level
     if (this.bricks.length === 0 && this.currentLevel < this.levels.length) {
       if (this.currentLevel === this.levels.length - 1) {
-        this.gameState = gameState.win;
+        this.gameState = gameState.won;
       } else {
         this.currentLevel++;
         this.gameState = gameState.newLevel;
@@ -285,31 +292,48 @@ class Game {
       }
     }
 
+    //Update objetcs(ball, paddle and bricks)
     [...this.gameObjects, ...this.bricks].forEach(object =>
-      object.update(deltaTime)
+      object.update()
     );
 
+    //Show only bricks untouched 
     this.bricks = this.bricks.filter(brick => !brick.markedForDeletion);
   }
 
   draw = ctx => {
+    //Draw objects (ball, padle and bricks)
     [...this.gameObjects, ...this.bricks].forEach(object => object.draw(ctx));
 
+    //Show game infos on canvas screen
+    //Score
     ctx.font = "30px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
     ctx.fillText(`SCORE: ${this.score}`, canvas.width / 28, canvas.height / 12);
 
+    //Lives
     ctx.font = "30px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
-    ctx.fillText(`LIVES: ${this.lives}`, canvas.width / 1.15, canvas.height / 12);
+    ctx.fillText(
+      `LIVES: ${this.lives}`,
+      canvas.width / 1.15,
+      canvas.height / 12
+    );
 
+    //Current Level
     ctx.font = "30px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
-    ctx.fillText(`LEVEL: ${this.currentLevel + 1}`, canvas.width / 2.2, canvas.height / 12);
-
+    ctx.fillText(
+      `LEVEL: ${this.currentLevel + 1}`,
+      canvas.width / 2.2,
+      canvas.height / 12
+    );
+    
+    // Game status messages
+    //Paused
     if (this.gameState === gameState.paused) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
       ctx.fillStyle = "rgba(0,0,0,0.5)";
@@ -321,6 +345,7 @@ class Game {
       ctx.fillText("Paused", this.gameWidth / 2, this.gameHeight / 2);
     }
 
+    //Start Menu
     if (this.gameState === gameState.menu) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
       ctx.fillStyle = "rgba(0,0,0,1)";
@@ -335,6 +360,8 @@ class Game {
         this.gameHeight / 2
       );
     }
+
+    //Game Over
     if (this.gameState === gameState.gameOver) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
       ctx.fillStyle = "rgba(0,0,0,1)";
@@ -343,19 +370,30 @@ class Game {
       ctx.font = "30px Arial";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText(`GAME OVER! SCORE: ${this.score}`,this.gameWidth / 2, this.gameHeight / 2);
+      ctx.fillText(
+        `GAME OVER! SCORE: ${this.score}`,
+        this.gameWidth / 2,
+        this.gameHeight / 2
+      );
     }
-    if (this.gameState === gameState.win) {
+
+    //Winner
+    if (this.gameState === gameState.won) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fill();
       ctx.font = "30px Arial";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText(`YOU WIN!!! SCORE: ${this.score}`,this.gameWidth / 2, this.gameHeight / 2);
+      ctx.fillText(
+        `YOU WON!!! SCORE: ${this.score}`,
+        this.gameWidth / 2,
+        this.gameHeight / 2
+      );
     }
-  }
+  };
 
+  //Toggle pause state
   togglePause() {
     if (this.gameState === gameState.paused) {
       this.gameState = gameState.running;
@@ -365,18 +403,15 @@ class Game {
   }
 }
 
+//Create new game
 let game = new Game(canvas.width, canvas.height);
-let lastTime = 0;
 
-function gameUpdate(timestamp) {
-  let deltaTime = timestamp - lastTime;
-  lastTime = timestamp;
-
+//Start game and game update
+function gameUpdate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  game.update(deltaTime);
+  game.update();
   game.draw(ctx);
-  
+
   requestAnimationFrame(gameUpdate);
 }
 requestAnimationFrame(gameUpdate);
