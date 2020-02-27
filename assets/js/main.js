@@ -178,6 +178,7 @@ class Brick {
     if (detectCollision(this.game.ball, this)) {
       this.game.ball.speed.y = -this.game.ball.speed.y;
       this.markedForDeletion = true;
+      this.game.score += 10
     }
   }
 
@@ -207,14 +208,11 @@ function buildLevel(game, level) {
 
 const level1 = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
 ];
 
 const level2 = [
   [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
@@ -224,7 +222,6 @@ const level3 = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
 
 
@@ -238,6 +235,7 @@ class Game {
     this.gameObjects = [];
     this.bricks = [];
     this.lives = 5;
+    this.score = 0;
 
     this.levels = [level1, level2, level3];
     this.currentLevel = 0;
@@ -256,7 +254,6 @@ class Game {
     this.bricks = buildLevel(this, this.levels[this.currentLevel]);
     this.ball.reset();
     this.gameObjects = [this.ball, this.paddle];
-
     this.gameState = gameState.running;
   }
 
@@ -275,11 +272,10 @@ class Game {
         this.gameState = gameState.win;
       } else {
         this.currentLevel++;
-      this.gameState = gameState.newLevel;
-      this.start();
+        this.gameState = gameState.newLevel;
+        this.start();
       }
     }
-
 
     [...this.gameObjects, ...this.bricks].forEach(object =>
       object.update(deltaTime)
@@ -290,6 +286,12 @@ class Game {
 
   draw = ctx => {
     [...this.gameObjects, ...this.bricks].forEach(object => object.draw(ctx));
+
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "left";
+    ctx.fillText(this.score, canvas.width / 2, canvas.height / 2);
+
 
     if (this.gameState === gameState.paused) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
@@ -358,8 +360,7 @@ function gameUpdate(timestamp) {
 
   game.update(deltaTime);
   game.draw(ctx);
-
+  
   requestAnimationFrame(gameUpdate);
 }
-
 requestAnimationFrame(gameUpdate);
