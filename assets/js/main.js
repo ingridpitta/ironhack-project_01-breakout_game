@@ -13,26 +13,24 @@ const gameState = {
   won: 5
 };
 
-function detectCollision(ball, gameObject) {
-  let bottomBall = ball.position.y + ball.size;
-  let topBall = ball.position.y;
+//Levels 
+const level1 = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
+];
 
-  let topObject = gameObject.position.y;
-  let leftSideObject = gameObject.position.x;
-  let rightSideObject = gameObject.position.x + gameObject.width;
-  let bottomObject = gameObject.position.y + gameObject.height;
+const level2 = [
+  [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
 
-  if (
-    bottomBall >= topObject &&
-    topBall <= bottomObject &&
-    ball.position.x >= leftSideObject &&
-    ball.position.x + ball.size <= rightSideObject
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-}
+const level3 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
 
 class Ball {
   constructor(game) {
@@ -43,7 +41,7 @@ class Ball {
     this.reset();
   }
 
-  reset() {
+  reset = () => {
     this.position = { x: 10, y: 400 };
 
     //Increase speed with levels
@@ -58,7 +56,7 @@ class Ball {
     }
   }
 
-  draw(ctx) {
+  draw = (ctx) => {
     ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size, 0, Math.PI * 2);
@@ -66,7 +64,7 @@ class Ball {
     ctx.closePath();
   }
 
-  update() {
+  update = () => {
     //Updade position based on speed
     this.position.x += this.speed.x;
     this.position.y += this.speed.y;
@@ -110,24 +108,24 @@ class Paddle {
     };
   }
 
-  moveLeft() {
+  moveLeft = () => {
     this.speed = -this.maxSpeed;
   }
 
-  moveRight() {
+  moveRight = () => {
     this.speed = this.maxSpeed;
   }
 
-  stop() {
+  stop = () => {
     this.speed = 0;
   }
 
-  draw(ctx) {
+  draw = (ctx) => {
     ctx.fillStyle = "red";
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 
-  update() {
+  update = () => {
     this.position.x += this.speed;
 
     if (this.position.x < 0) this.position.x = 0;
@@ -185,7 +183,7 @@ class Brick {
     this.markedForDeletion = false;
   }
 
-  update() {
+  update = () => {
     //Detect collision with Brick
     if (detectCollision(this.game.ball, this)) {
       this.game.ball.speed.y = -this.game.ball.speed.y;
@@ -194,50 +192,11 @@ class Brick {
     }
   }
 
-  draw(ctx) {
+  draw = (ctx) => {
     ctx.fillStyle = "red";
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
-
-
-//Populate screen with bricks according to current level
-function buildLevel(game, level) {
-  let bricks = [];
-
-  level.forEach((row, rowIndex) => {
-    row.forEach((brick, brickIndex) => {
-      if (brick === 1) {
-        let position = {
-          x: canvas.width / 30 + 110 * brickIndex,
-          y: 80 + 25 * rowIndex
-        };
-        bricks.push(new Brick(game, position));
-      }
-    });
-  });
-
-  return bricks;
-}
-
-//Levels 
-const level1 = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
-];
-
-const level2 = [
-  [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
-
-const level3 = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-];
 
 class Game {
   constructor(gameWidth, gameHeight) {
@@ -257,7 +216,7 @@ class Game {
     new InputHandler(this.paddle, this);
   }
 
-  start() {
+  start = () => {
     if (
       this.gameState !== gameState.menu &&
       this.gameState !== gameState.newLevel
@@ -269,9 +228,9 @@ class Game {
     this.ball.reset();
     this.gameObjects = [this.ball, this.paddle];
     this.gameState = gameState.running;
-  }
+  };
 
-  update() {
+  update = () => {
     if (this.lives === 0) this.gameState = gameState.gameOver;
 
     if (
@@ -280,7 +239,7 @@ class Game {
       this.gameState === gameState.gameOver
     )
       return;
-    
+
     // Check if won else increase level
     if (this.bricks.length === 0 && this.currentLevel < this.levels.length) {
       if (this.currentLevel === this.levels.length - 1) {
@@ -293,13 +252,11 @@ class Game {
     }
 
     //Update objetcs(ball, paddle and bricks)
-    [...this.gameObjects, ...this.bricks].forEach(object =>
-      object.update()
-    );
+    [...this.gameObjects, ...this.bricks].forEach(object => object.update());
 
-    //Show only bricks untouched 
+    //Show only bricks untouched
     this.bricks = this.bricks.filter(brick => !brick.markedForDeletion);
-  }
+  };
 
   draw = ctx => {
     //Draw objects (ball, padle and bricks)
@@ -331,7 +288,7 @@ class Game {
       canvas.width / 2.2,
       canvas.height / 12
     );
-    
+
     // Game status messages
     //Paused
     if (this.gameState === gameState.paused) {
@@ -394,20 +351,60 @@ class Game {
   };
 
   //Toggle pause state
-  togglePause() {
+  togglePause = () => {
     if (this.gameState === gameState.paused) {
       this.gameState = gameState.running;
     } else {
       this.gameState = gameState.paused;
     }
+  };
+}
+
+detectCollision = (ball, gameObject) => {
+  let bottomBall = ball.position.y + ball.size;
+  let topBall = ball.position.y;
+
+  let topObject = gameObject.position.y;
+  let leftSideObject = gameObject.position.x;
+  let rightSideObject = gameObject.position.x + gameObject.width;
+  let bottomObject = gameObject.position.y + gameObject.height;
+
+  if (
+    bottomBall >= topObject &&
+    topBall <= bottomObject &&
+    ball.position.x >= leftSideObject &&
+    ball.position.x + ball.size <= rightSideObject
+  ) {
+    return true;
+  } else {
+    return false;
   }
+}
+
+//Populate screen with bricks according to current level
+buildLevel = (game, level) => {
+  let bricks = [];
+
+  level.forEach((row, rowIndex) => {
+    row.forEach((brick, brickIndex) => {
+      if (brick === 1) {
+        let position = {
+          x: canvas.width / 30 + 110 * brickIndex,
+          y: 80 + 25 * rowIndex
+        };
+        bricks.push(new Brick(game, position));
+      }
+    });
+  });
+
+  return bricks;
 }
 
 //Create new game
 let game = new Game(canvas.width, canvas.height);
 
 //Start game and game update
-function gameUpdate() {
+gameUpdate = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   game.update();
   game.draw(ctx);
