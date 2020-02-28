@@ -65,7 +65,7 @@ class Ball {
   }
 
   update = () => {
-    //Updade position based on speed
+    //Updade position 
     this.position.x += this.speed.x;
     this.position.y += this.speed.y;
 
@@ -264,13 +264,13 @@ class Game {
 
     //Show game infos on canvas screen
     //Score
-    ctx.font = "30px Arial";
+    ctx.font = "30px Fugaz One";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
     ctx.fillText(`SCORE: ${this.score}`, canvas.width / 28, canvas.height / 12);
 
     //Lives
-    ctx.font = "30px Arial";
+    ctx.font = "30px Fugaz One";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
     ctx.fillText(
@@ -280,7 +280,7 @@ class Game {
     );
 
     //Current Level
-    ctx.font = "30px Arial";
+    ctx.font = "30px Fugaz One";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
     ctx.fillText(
@@ -296,10 +296,10 @@ class Game {
       ctx.fillStyle = "rgba(0,0,0,0.5)";
       ctx.fill();
 
-      ctx.font = "30px Arial";
+      ctx.font = "30px Fugaz One";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText("Paused", this.gameWidth / 2, this.gameHeight / 2);
+      ctx.fillText("PAUSED", this.gameWidth / 2, this.gameHeight / 2);
     }
 
     //Start Menu
@@ -308,11 +308,11 @@ class Game {
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fill();
 
-      ctx.font = "30px Arial";
+      ctx.font = "30px Fugaz One";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
       ctx.fillText(
-        "Press SPACEBAR To Start",
+        "Press SPACEBAR to Start",
         this.gameWidth / 2,
         this.gameHeight / 2
       );
@@ -324,7 +324,7 @@ class Game {
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fill();
 
-      ctx.font = "30px Arial";
+      ctx.font = "30px Fugaz One";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
       ctx.fillText(
@@ -339,7 +339,7 @@ class Game {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fill();
-      ctx.font = "30px Arial";
+      ctx.font = "30px Fugaz One";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
       ctx.fillText(
