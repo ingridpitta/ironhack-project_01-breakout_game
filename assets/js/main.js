@@ -10,10 +10,11 @@ const gameState = {
   menu: 2,
   gameOver: 3,
   newLevel: 4,
-  won: 5
+  won: 5,
+  init: 6
 };
 
-//Levels 
+//Levels
 const level1 = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
@@ -41,6 +42,7 @@ class Ball {
     this.reset();
   }
 
+  //Initial position and speed
   reset = () => {
     this.position = { x: 10, y: 400 };
 
@@ -54,18 +56,18 @@ class Ball {
     if (this.game.currentLevel === 2) {
       this.speed = { x: 8, y: -4 };
     }
-  }
+  };
 
-  draw = (ctx) => {
+  draw = ctx => {
     ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
-  }
+  };
 
   update = () => {
-    //Updade position 
+    //Updade position
     this.position.x += this.speed.x;
     this.position.y += this.speed.y;
 
@@ -90,7 +92,7 @@ class Ball {
       this.speed.y = -this.speed.y;
       this.position.y = this.game.paddle.position.y - this.size;
     }
-  }
+  };
 }
 
 class Paddle {
@@ -110,20 +112,20 @@ class Paddle {
 
   moveLeft = () => {
     this.speed = -this.maxSpeed;
-  }
+  };
 
   moveRight = () => {
     this.speed = this.maxSpeed;
-  }
+  };
 
   stop = () => {
     this.speed = 0;
-  }
+  };
 
-  draw = (ctx) => {
+  draw = ctx => {
     ctx.fillStyle = "red";
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-  }
+  };
 
   update = () => {
     this.position.x += this.speed;
@@ -132,7 +134,7 @@ class Paddle {
 
     if (this.position.x + this.width > this.gameWidth)
       this.position.x = this.gameWidth - this.width;
-  }
+  };
 }
 
 class InputHandler {
@@ -190,19 +192,19 @@ class Brick {
       this.markedForDeletion = true;
       this.game.score += 10;
     }
-  }
+  };
 
-  draw = (ctx) => {
+  draw = ctx => {
     ctx.fillStyle = "red";
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-  }
+  };
 }
 
 class Game {
   constructor(gameWidth, gameHeight) {
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
-    this.gameState = gameState.menu;
+    this.gameState = gameState.init;
     this.ball = new Ball(this);
     this.paddle = new Paddle(this);
     this.gameObjects = [];
@@ -232,6 +234,12 @@ class Game {
 
   update = () => {
     if (this.lives === 0) this.gameState = gameState.gameOver;
+    if (this.gameState === gameState.init) {
+      setTimeout(() => { 
+        this.gameState = gameState.menu
+      },1200)
+      return
+    };
 
     if (
       this.gameState === gameState.paused ||
@@ -302,6 +310,18 @@ class Game {
       ctx.fillText("PAUSED", this.gameWidth / 2, this.gameHeight / 2);
     }
 
+    //Window Load
+    if (this.gameState === gameState.init) {
+      ctx.rect(0, 0, this.gameWidth, this.gameHeight);
+      ctx.fillStyle = "rgba(0,0,0,1)";
+      ctx.fill();
+
+      ctx.font = "50px Fugaz One";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText("Breakout Game", this.gameWidth / 2, this.gameHeight / 2);
+    }
+
     //Start Menu
     if (this.gameState === gameState.menu) {
       ctx.rect(0, 0, this.gameWidth, this.gameHeight);
@@ -311,11 +331,7 @@ class Game {
       ctx.font = "30px Fugaz One";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText(
-        "Press SPACEBAR to Start",
-        this.gameWidth / 2,
-        this.gameHeight / 2
-      );
+      ctx.fillText("Press SPACEBAR to Start", this.gameWidth / 2, this.gameHeight / 2);
     }
 
     //Game Over
@@ -354,8 +370,10 @@ class Game {
   togglePause = () => {
     if (this.gameState === gameState.paused) {
       this.gameState = gameState.running;
-    } else {
+    } else if (this.gameState === gameState.running) {
       this.gameState = gameState.paused;
+    } else {
+     return
     }
   };
 }
@@ -379,7 +397,7 @@ detectCollision = (ball, gameObject) => {
   } else {
     return false;
   }
-}
+};
 
 //Populate screen with bricks according to current level
 buildLevel = (game, level) => {
@@ -398,7 +416,7 @@ buildLevel = (game, level) => {
   });
 
   return bricks;
-}
+};
 
 //Create new game
 let game = new Game(canvas.width, canvas.height);
@@ -410,5 +428,5 @@ gameUpdate = () => {
   game.draw(ctx);
 
   requestAnimationFrame(gameUpdate);
-}
+};
 requestAnimationFrame(gameUpdate);
